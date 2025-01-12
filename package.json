@@ -14,5 +14,8 @@
   "license": "UNLICENSED",
   "devDependencies": {
     "parcel": "^2.13.3"
+  },
+  "dependencies": {
+    "oidc-client-ts": "^3.1.0"
   }
 }
