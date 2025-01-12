@@ -1,0 +1,15 @@
+{
+  "name": "fragments-ui",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Fragments UI testing web app",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ilaganjacob/fragments-ui.git"
+  },
+  "author": "Jacob Ilagan",
+  "license": "UNLICENSED"
+}
