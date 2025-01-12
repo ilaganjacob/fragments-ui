@@ -11,5 +11,8 @@
     "url": "git+https://github.com/ilaganjacob/fragments-ui.git"
   },
   "author": "Jacob Ilagan",
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "parcel": "^2.13.3"
+  }
 }
