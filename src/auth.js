@@ -25,16 +25,14 @@ export async function signIn() {
 }
 
 // Create a simplified view of the user, with an extra method for creating the auth headers
-
 function formatUser(user) {
   console.log("User Authenticated", { user });
-
   return {
     // If you add any other profile scopes, you can include them here
     username: user.profile["cognito:username"],
     email: user.profile.email,
     idToken: user.id_token,
-    accessToken: user.acess_token,
+    accessToken: user.access_token,
     authorizationHeaders: (type = "application/json") => ({
       "Content-Type": type,
       Authorization: `Bearer ${user.id_token}`,
@@ -43,7 +41,7 @@ function formatUser(user) {
 }
 
 export async function getUser() {
-  // First, check if we're handling a signin redirect callback (e.g., is ?code... in URL)
+  // First, check if we're handling a signin redirect callback (e.g., is ?code=... in URL)
   if (window.location.search.includes("code=")) {
     const user = await userManager.signinCallback();
     // Remove the auth code from the URL without triggering a reload
