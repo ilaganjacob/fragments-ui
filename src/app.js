@@ -10,7 +10,7 @@ async function init() {
   // Wire up event handlers to deal with login and logout.
   loginBtn.onclick = () => {
     // Sign-in via the Amazon Cognito Hosted UI (requires redirects), see:
-    signin();
+    signIn();
   };
 
   // See if we're signed in (i.e., we'll have a `user` object)
