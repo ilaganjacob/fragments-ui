@@ -16,13 +16,15 @@ async function init() {
 
   // See if we're signed in (i.e., we'll have a `user` object)
   const user = await getUser();
-
-  //Do an authenticated request to the fragments API server and log the result
-  const userFragments = await getUserFragments();
-
+  
   if (!user) {
     return;
   }
+  
+  //Do an authenticated request to the fragments API server and log the result
+  const userFragments = await getUserFragments();
+
+  
 
   // Update the UI to welcome the user
   userSection.hidden = false;
