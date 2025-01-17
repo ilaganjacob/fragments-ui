@@ -10,12 +10,16 @@ async function init() {
 
   // Wire up event handlers to deal with login and logout.
   loginBtn.onclick = () => {
-    // Sign-in via the Amazon Cognito Hosted UI (requires redirects), see:
+    // Sign-in via the Amazon Cognito Hosted UI (requires redirects)
     signIn();
   };
 
   // See if we're signed in (i.e., we'll have a `user` object)
   const user = await getUser();
+
+  //Do an authenticated request to the fragments API server and log the result
+  const userFragments = await getUserFragments();
+
   if (!user) {
     return;
   }
