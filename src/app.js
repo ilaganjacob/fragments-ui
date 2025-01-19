@@ -20,9 +20,9 @@ async function init() {
   if (!user) {
     return;
   }
-  
+
   //Do an authenticated request to the fragments API server and log the result
-  const userFragments = await getUserFragments();
+  const userFragments = await getUserFragments(user);
 
   
 
