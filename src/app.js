@@ -42,38 +42,55 @@ async function displayFragments(user) {
   }
 }
 
+// Handle fragment creation
+async function handleCreateFragment(user) {
+  const text = elements.fragmentText().value.trim();
+  if (!text) {
+    elements.createStatus().textContent = 'Please enter some text';
+    return;
+  }
+
+  try {
+    elements.createBtn().disabled = true;
+    elements.createStatus().textContent = 'Creating fragment...';
+    
+    await createFragment(user, text);
+    
+    // Clear form and show success
+    elements.fragmentText().value = '';
+    elements.createStatus().textContent = 'Fragment created successfully!';
+    
+    // Refresh the fragments list
+    await displayFragments(user);
+  } catch (err) {
+    elements.createStatus().textContent = `Error: ${err.message}`;
+  } finally {
+    elements.createBtn().disabled = false;
+  }
+}
 
 async function init() {
-  // Get our UI elements
-  const userSection = document.querySelector('#user');
-  const loginBtn = document.querySelector('#login');
-
-  // Wire up event handlers to deal with login and logout.
-  loginBtn.onclick = () => {
-    // Sign-in via the Amazon Cognito Hosted UI (requires redirects)
+  // Wire up event handlers to deal with login
+  elements.loginBtn().onclick = () => {
     signIn();
   };
 
   // See if we're signed in (i.e., we'll have a `user` object)
   const user = await getUser();
-  
   if (!user) {
     return;
   }
 
-  //Do an authenticated request to the fragments API server and log the result
-  const userFragments = await getUserFragments(user);
-
-  
-
   // Update the UI to welcome the user
-  userSection.hidden = false;
+  elements.userSection().hidden = false;
+  elements.username().innerText = user.username;
+  elements.loginBtn().disabled = true;
 
-  // Show the user's username
-  userSection.querySelector('.username').innerText = user.username;
+  // Wire up fragment creation
+  elements.createBtn().onclick = () => handleCreateFragment(user);
 
-  // Disable the Login button
-  loginBtn.disabled = true;
+  // Display any existing fragments
+  await displayFragments(user);
 }
 
 // Wait for the DOM to be ready, then start the app
