@@ -13,15 +13,6 @@ async function init() {
   const createStatus = document.querySelector('#createStatus');
   const fragmentsList = document.querySelector('#fragmentsList');
 
-  // Log whether we found all our elements
-  console.log('Found UI elements:', {
-    userSection: !!userSection,
-    loginBtn: !!loginBtn,
-    createBtn: !!createBtn,
-    fragmentText: !!fragmentText,
-    createStatus: !!createStatus,
-    fragmentsList: !!fragmentsList
-  });
 
   // Wire up event handlers to deal with login
   loginBtn.onclick = () => {
