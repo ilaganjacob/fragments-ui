@@ -8,13 +8,31 @@
   </head>
   <body>
     <h1>Fragments UI</h1>
+    
+    <!-- Authentication Section -->
     <section>
       <nav>
         <button id="login">Login</button>
       </nav>
     </section>
+
+    <!-- User Info Section -->
     <section hidden id="user">
       <h2>Hello <span class="username"></span>!</h2>
+      
+      <!-- Fragment Creation Form -->
+      <div id="create-fragment">
+        <h3>Create New Fragment</h3>
+        <textarea id="fragment-text" rows="5" placeholder="Enter your text fragment..."></textarea>
+        <button id="create-button">Create Fragment</button>
+        <p id="create-status"></p>
+      </div>
+
+      <!-- Fragment List -->
+      <div id="fragments-list">
+        <h3>Your Fragments</h3>
+        <ul id="fragments"></ul>
+      </div>
     </section>
   </body>
 </html>
