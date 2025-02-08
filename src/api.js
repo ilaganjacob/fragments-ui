@@ -5,16 +5,12 @@ const apiUrl = process.env.API_URL || 'http://localhost:8080';
 
 /**
  * Given an authenticated user, request all fragments for this user from the
- * fragments microservice (currently only running locally). We expect a user
- * to have an `idToken` attached, so we can send that along with the request.
+ * fragments microservice.
  */
 export async function getUserFragments(user) {
   console.log('Requesting user fragments data...');
   try {
     const res = await fetch(`${apiUrl}/v1/fragments`, {
-      // Generate headers with the proper Authorization bearer token to pass.
-      // We are using the `authorizationHeaders()` helper method we defined
-      // earlier, to automatically attach the user's ID token.
       headers: user.authorizationHeaders(),
     });
     if (!res.ok) {
@@ -24,21 +20,21 @@ export async function getUserFragments(user) {
     console.log('Successfully got user fragments data', { data });
     return data;
   } catch (err) {
-    console.error('Unable to call GET /v1/fragment', { err });
+    console.error('Unable to call GET /v1/fragments', { err });
+    throw err; // Re-throw error so caller can handle it
   }
 }
-
 
 /**
  * Create a new text fragment for the authenticated user
  */
-export async function createFragment(user, fragment) {
+export async function createFragment(user, text) { // Changed parameter name from fragment to text
   console.log('Creating new fragment...');
   try {
     const res = await fetch(`${apiUrl}/v1/fragments`, {
       method: 'POST',
-      headers: user.authorizationHeaders(),
-      body: JSON.stringify(fragment),
+      headers: user.authorizationHeaders('text/plain'), // Added content-type
+      body: text, // Send raw text, not JSON.stringify()
     });
     if (!res.ok) {
       throw new Error(`${res.status} ${res.statusText}`);
@@ -47,26 +43,28 @@ export async function createFragment(user, fragment) {
     console.log('Successfully created new fragment', { data });
     return data;
   } catch (err) {
-    console.error('Unable to call POST /v1/fragment', { err });
+    console.error('Unable to create fragment', { err });
+    throw err;
   }
 }
 
 /**
  * Get a specific fragment's data by id
  */
-export async function getFragment(user, fragmentId) {
-  console.log('Requesting fragment data...');
+export async function getFragment(user, id) { // Changed parameter name from fragmentId to id
+  console.log(`Getting fragment ${id}...`);
   try {
-    const res = await fetch(`${apiUrl}/v1/fragments/${fragmentId}`, {
+    const res = await fetch(`${apiUrl}/v1/fragments/${id}`, {
       headers: user.authorizationHeaders(),
     });
     if (!res.ok) {
       throw new Error(`${res.status} ${res.statusText}`);
     }
-    const data = await res.json();
+    const data = await res.text(); // Changed to .text() since we're dealing with text fragments
     console.log('Successfully got fragment data', { data });
     return data;
   } catch (err) {
-    console.error('Unable to call GET /v1/fragment', { err });
+    console.error('Unable to get fragment data', { err });
+    throw err;
   }
 }
