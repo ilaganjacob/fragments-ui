@@ -3,6 +3,46 @@
 import { signIn, getUser } from './auth';
 import { getUserFragments } from './api';
 
+// Cache DOM elements we'll need to reference
+const elements = {
+  userSection: () => document.querySelector('#user'),
+  loginBtn: () => document.querySelector('#login'),
+  username: () => document.querySelector('.username'),
+  fragmentText: () => document.querySelector('#fragment-text'),
+  createBtn: () => document.querySelector('#create-button'),
+  createStatus: () => document.querySelector('#create-status'),
+  fragmentsList: () => document.querySelector('#fragments'),
+};
+
+async function displayFragments(user) {
+  try {
+    const {fragments} = await getUserFragments(user);
+    const fragmentList = elements.fragmentsList();
+    fragmentList.innerHTML = '';
+
+    if (fragments.length === 0) {
+      fragmentList.innerHTML = '<p>No fragments found.</p>';
+      return;
+    }
+
+    // For each fragment ID, create a list item
+    for (const id of fragments) {
+      const li = document.createElement('li');
+      try {
+        // Get the fragment's content
+        const content = await getFragment(user, id);
+        li.textContent = `${id}: ${content.substring(0,60)}...` //  Show preview of content
+      } catch (err) {
+        li.textContent = `${id}: [Error loading fragment]`;
+      }
+      fragmentList.appendChild(li);
+    }
+  } catch (err) {
+    console.error('Error loading fragments', err);
+  }
+}
+
+
 async function init() {
   // Get our UI elements
   const userSection = document.querySelector('#user');
