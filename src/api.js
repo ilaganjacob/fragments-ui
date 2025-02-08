@@ -28,6 +28,10 @@ export async function getUserFragments(user) {
   }
 }
 
+
+/**
+ * Create a new text fragment for the authenticated user
+ */
 export async function createFragment(user, fragment) {
   console.log('Creating new fragment...');
   try {
