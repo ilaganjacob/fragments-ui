@@ -24,29 +24,50 @@ export async function getUserFragments(user) {
     throw err; // Re-throw error so caller can handle it
   }
 }
+// In fragments-ui/src/api.js
+export async function createFragment(user, text) {
+  console.log('Creating Fragment - Detailed Debug:', {
+    apiUrl: `${apiUrl}/v1/fragments`,
+    textLength: text.length,
+    userDetails: {
+      username: user.username,
+      email: user.email,
+    },
+    authHeaderType: 'text/plain',
+    tokenLength: user.idToken.length,
+    tokenStart: user.idToken.substring(0, 50) + '...'
+  });
 
-/**
- * Create a new text fragment for the authenticated user
- */
-export async function createFragment(user, text) { // Changed parameter name from fragment to text
-  console.log('Creating new fragment...');
   try {
+    const headers = user.authorizationHeaders('text/plain');
+    console.log('Request Headers:', headers);
+
     const res = await fetch(`${apiUrl}/v1/fragments`, {
       method: 'POST',
-      headers: user.authorizationHeaders('text/plain'), // Added content-type
-      body: text, // Send raw text, not JSON.stringify()
+      headers: headers,
+      body: text,
     });
+
+    console.log('Full Response:', {
+      status: res.status,
+      headers: Object.fromEntries(res.headers.entries()),
+    });
+
     if (!res.ok) {
-      throw new Error(`${res.status} ${res.statusText}`);
+      const errorText = await res.text();
+      console.error('Error Response Body:', errorText);
+      throw new Error(`${res.status} ${res.statusText}: ${errorText}`);
     }
+
     const data = await res.json();
-    console.log('Successfully created new fragment', { data });
+    console.log('Successfully created fragment', { data });
     return data;
   } catch (err) {
-    console.error('Unable to create fragment', { err });
+    console.error('Fragment Creation Error:', err);
     throw err;
   }
 }
+
 
 /**
  * Get a specific fragment's data by id
