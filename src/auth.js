@@ -26,14 +26,21 @@ export async function signIn() {
 
 // Create a simplified view of the user, with an extra method for creating the auth headers
 function formatUser(user) {
-  console.log("User Authenticated", { user });
+  console.log("FULL User Authentication Details:", {
+    username: user.profile["cognito:username"],
+    email: user.profile.email,
+    idTokenLength: user.id_token.length,
+    idTokenStart: user.id_token.substring(0, 50) + '...',
+    audience: user.profile.aud,
+    clientId: process.env.AWS_COGNITO_CLIENT_ID
+  });
+
   return {
-    // If you add any other profile scopes, you can include them here
     username: user.profile["cognito:username"],
     email: user.profile.email,
     idToken: user.id_token,
     accessToken: user.access_token,
-    authorizationHeaders: (type = "application/json") => ({
+    authorizationHeaders: (type = "text/plain") => ({
       "Content-Type": type,
       Authorization: `Bearer ${user.id_token}`,
     }),
