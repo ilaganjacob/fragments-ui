@@ -8,20 +8,43 @@ const apiUrl = process.env.API_URL || 'http://localhost:8080';
  * fragments microservice.
  */
 export async function getUserFragments(user) {
-  console.log('Requesting user fragments data...');
+  console.log('Requesting user fragments data...', {
+    apiUrl: `${apiUrl}/v1/fragments`,
+    username: user.username,
+    tokenLength: user.idToken.length,
+    tokenStart: user.idToken.substring(0, 50) + '...'
+  });
+
   try {
+    const headers = user.authorizationHeaders();
+    console.log('Request Headers:', headers);
+
     const res = await fetch(`${apiUrl}/v1/fragments`, {
-      headers: user.authorizationHeaders(),
+      method: 'GET',
+      headers: headers,
     });
+
+    console.log('Full Response:', {
+      status: res.status,
+      headers: Object.fromEntries(res.headers.entries()),
+    });
+
     if (!res.ok) {
-      throw new Error(`${res.status} ${res.statusText}`);
+      const errorText = await res.text();
+      console.error('Error Response Body:', errorText);
+      throw new Error(`${res.status} ${res.statusText}: ${errorText}`);
     }
+
     const data = await res.json();
     console.log('Successfully got user fragments data', { data });
     return data;
   } catch (err) {
-    console.error('Unable to call GET /v1/fragments', { err });
-    throw err; // Re-throw error so caller can handle it
+    console.error('Unable to call GET /v1/fragments', { 
+      errorName: err.name, 
+      errorMessage: err.message,
+      errorStack: err.stack 
+    });
+    throw err;
   }
 }
 // In fragments-ui/src/api.js
