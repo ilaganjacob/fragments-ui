@@ -27,8 +27,21 @@ FROM nginx:alpine AS production
 # Copy the built assets from the builder stage to the nginx html directory
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Copy a custom nginx configuration file if needed
-# COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+# In the builder stage, copy environment variables
+COPY .env .env
+
+# Use a build argument for the API URL
+ARG API_URL
+ENV API_URL=${API_URL}
+
+ARG AWS_COGNITO_POOL_ID
+ENV AWS_COGNITO_POOL_ID=${AWS_COGNITO_POOL_ID}
+
+ARG AWS_COGNITO_CLIENT_ID
+ENV AWS_COGNITO_CLIENT_ID=${AWS_COGNITO_CLIENT_ID}
+
+ARG OAUTH_SIGN_IN_REDIRECT_URL
+ENV OAUTH_SIGN_IN_REDIRECT_URL=${OAUTH_SIGN_IN_REDIRECT_URL}
 
 # Expose the default NGINX port
 EXPOSE 80
