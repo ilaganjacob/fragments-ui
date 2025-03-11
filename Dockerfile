@@ -1,7 +1,7 @@
 # Multi-stage build for fragments-ui web application
 
 # Stage 1: Build stage
-FROM node:20.18.0-alpine@sha256:b1e0880c3af955867bc2f1944b49d20187beb7afa3f30173e15a97149ab7f5f1 AS builder
+FROM node:20-alpine AS builder
 
 LABEL maintainer="Jacob Ilagan <jilagan5@myseneca.ca>"
 LABEL description="Fragments UI - Frontend for Fragments Microservice"
@@ -22,7 +22,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Production stage using NGINX
-FROM nginx:1.25.3-alpine@sha256:a83b9f3e5a5ef3ac470bf6e05bb718a914e42f3ae58f3fbd303c355c5a78b7e1 AS production
+FROM nginx:alpine AS production
 
 # Copy the built assets from the builder stage to the nginx html directory
 COPY --from=builder /app/dist /usr/share/nginx/html
@@ -37,4 +37,3 @@ EXPOSE 80
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost/ || exit 1
 
-# NGINX starts automatically in this image, no need for CMD
