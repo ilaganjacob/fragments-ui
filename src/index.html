@@ -4,6 +4,34 @@
     <meta charset="utf-8" />
     <title>Fragments UI</title>
     <link rel="stylesheet" href="https://unpkg.com/bamboo.css" />
+    <style>
+      .fragment-item {
+        border: 1px solid #ddd;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 4px;
+      }
+      .fragment-content {
+        white-space: pre-wrap;
+        background-color: #f5f5f5;
+        padding: 10px;
+        border-radius: 4px;
+        margin-top: 5px;
+      }
+      .fragment-metadata {
+        font-size: 0.8em;
+        color: #666;
+        margin-top: 5px;
+      }
+      .fragment-actions {
+        margin-top: 10px;
+      }
+      .api-url-display {
+        margin-top: 20px;
+        font-size: 0.8em;
+        color: #666;
+      }
+    </style>
     <script type="module" src="./app.js"></script>
   </head>
   <body>
@@ -23,15 +51,34 @@
       <!-- Fragment Creation Form -->
       <div class="create-container">
         <h3>Create New Fragment</h3>
-        <textarea id="fragmentText" rows="5" placeholder="Enter your text fragment..."></textarea>
+        <select id="contentTypeSelect">
+          <option value="text/plain">Plain Text</option>
+          <option value="application/json">JSON</option>
+          <option value="text/markdown">Markdown</option>
+        </select>
+        <textarea id="fragmentText" rows="5" placeholder="Enter your fragment content..."></textarea>
         <button id="createBtn">Create Fragment</button>
         <p id="createStatus"></p>
+      </div>
+
+      <!-- Request/Response Details -->
+      <div id="requestDetails" hidden>
+        <h4>Last Request Details</h4>
+        <pre id="requestInfo"></pre>
+        <h4>Response Headers</h4>
+        <pre id="responseHeaders"></pre>
       </div>
 
       <!-- Fragment List -->
       <div class="list-container">
         <h3>Your Fragments</h3>
-        <ul id="fragmentsList"></ul>
+        <button id="refreshBtn">Refresh List</button>
+        <div id="fragmentsList"></div>
+      </div>
+      
+      <!-- API URL Information -->
+      <div class="api-url-display">
+        <p>Connected to API: <span id="apiUrlDisplay"></span></p>
       </div>
     </section>
   </body>
