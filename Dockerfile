@@ -1,7 +1,7 @@
 # Multi-stage build for fragments-ui web application
 
 # Stage 1: Build stage
-FROM node:20-alpine AS builder
+FROM node:20-alpine@sha256:053c1d99e608fe9fa0db6821edd84276277c0a663cd181f4a3e59ee20f5f07ea AS builder
 
 LABEL maintainer="Jacob Ilagan <jilagan5@myseneca.ca>"
 LABEL description="Fragments UI - Frontend for Fragments Microservice"
