@@ -97,8 +97,6 @@ export async function createFragment(user, content, contentType = 'text/plain') 
     throw err;
   }
 }
-
-// Modify your getFragment function in api.js to use this function
 export async function getFragment(user, idWithOptionalExtension) {
   console.log(`Getting fragment ${idWithOptionalExtension}...`);
   try {
@@ -110,8 +108,20 @@ export async function getFragment(user, idWithOptionalExtension) {
       throw new Error(`${res.status} ${res.statusText}`);
     }
     
-    // Process the response based on content type
-    return await processResponseByContentType(res);
+    const contentType = res.headers.get('Content-Type');
+    
+    // For images, return as ArrayBuffer
+    if (contentType && contentType.startsWith('image/')) {
+      return await res.arrayBuffer();
+    }
+    
+    // For JSON
+    if (contentType && contentType.includes('application/json')) {
+      return await res.json();
+    }
+    
+    // Default to text for everything else
+    return await res.text();
   } catch (err) {
     console.error('Unable to get fragment data', { err });
     throw err;
