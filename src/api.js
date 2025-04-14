@@ -98,9 +98,7 @@ export async function createFragment(user, content, contentType = 'text/plain') 
   }
 }
 
-/**
- * Get a specific fragment's data by id, with optional extension for conversion
- */
+// Modify your getFragment function in api.js to use this function
 export async function getFragment(user, idWithOptionalExtension) {
   console.log(`Getting fragment ${idWithOptionalExtension}...`);
   try {
@@ -112,15 +110,8 @@ export async function getFragment(user, idWithOptionalExtension) {
       throw new Error(`${res.status} ${res.statusText}`);
     }
     
-    // Return the content based on the Content-Type
-    const contentType = res.headers.get('Content-Type');
-    console.log('Fragment content type:', contentType);
-    
-    if (contentType && contentType.includes('application/json')) {
-      return await res.json();
-    }
-    
-    return await res.text();
+    // Process the response based on content type
+    return await processResponseByContentType(res);
   } catch (err) {
     console.error('Unable to get fragment data', { err });
     throw err;
@@ -189,26 +180,6 @@ async function processResponseByContentType(response) {
   
   // Default to text for everything else
   return await response.text();
-}
-
-// Modify your getFragment function in api.js to use this function
-export async function getFragment(user, idWithOptionalExtension) {
-  console.log(`Getting fragment ${idWithOptionalExtension}...`);
-  try {
-    const res = await fetch(`${apiUrl}/v1/fragments/${idWithOptionalExtension}`, {
-      headers: user.authorizationHeaders(),
-    });
-    
-    if (!res.ok) {
-      throw new Error(`${res.status} ${res.statusText}`);
-    }
-    
-    // Process the response based on content type
-    return await processResponseByContentType(res);
-  } catch (err) {
-    console.error('Unable to get fragment data', { err });
-    throw err;
-  }
 }
 
 
