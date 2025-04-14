@@ -229,6 +229,9 @@ async function init() {
         // Preview button
         const previewBtn = document.createElement('button');
         previewBtn.textContent = 'View Content';
+
+
+        // Preview button functionality
         previewBtn.onclick = async () => {
           try {
             // Check if preview is already shown
