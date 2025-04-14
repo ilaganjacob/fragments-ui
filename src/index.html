@@ -7,98 +7,84 @@
     <style>
       .fragment-item {
         border: 1px solid #ddd;
-        padding: 15px;
-        margin-bottom: 20px;
-        border-radius: 6px;
-        background-color: #f8f8f8;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 4px;
       }
-      
       .fragment-content {
         white-space: pre-wrap;
         background-color: #f5f5f5;
         padding: 10px;
         border-radius: 4px;
-        margin-top: 10px;
-        overflow: auto;
-        max-height: 300px;
+        margin-top: 5px;
+        color: #333;
       }
-      
       .fragment-metadata {
-        font-size: 0.85em;
+        font-size: 0.8em;
         color: #666;
-        margin: 8px 0;
+        margin-top: 5px;
       }
-      
       .fragment-actions {
         margin-top: 10px;
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
-        align-items: center;
       }
-      
-      .conversion-options {
-        display: flex;
-        gap: 5px;
-        align-items: center;
-        margin-left: 10px;
-      }
-      
-      .format-btn {
-        padding: 3px 6px;
-        font-size: 0.8em;
-        background-color: #e0e0e0;
-      }
-      
-      .delete-btn {
-        margin-left: auto;
-        background-color: #ffeeee;
-      }
-      
-      .image-preview, .html-preview, .yaml-preview {
-        margin-top: 15px;
-        padding: 10px;
-        background-color: white;
-        border: 1px solid #eee;
-        border-radius: 4px;
-      }
-      
-      .image-preview img {
-        max-width: 100%;
-        max-height: 400px;
-        display: block;
-        margin: 0 auto;
-      }
-      
-      .download-link {
-        display: block;
-        text-align: center;
-        margin-top: 10px;
-        color: #0066cc;
-      }
-      
       .api-url-display {
         margin-top: 20px;
         font-size: 0.8em;
         color: #666;
       }
+      #fragmentFile {
+        display: none;
+        margin: 10px 0;
+      }
+      .format-selector {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 10px 0;
+      }
+      .html-preview, .image-preview, .yaml-preview {
+        margin-top: 10px;
+        padding: 10px;
+        background-color: #fff;
+        border: 1px solid #eee;
+        border-radius: 4px;
+      }
+      .image-preview img {
+        max-width: 100%;
+        max-height: 300px;
+        display: block;
+        margin: 0 auto;
+      }
+
+      #requestInfo, #responseHeaders {
+        color: #000;
+        background-color: #f5f5f5;
+        padding: 10px;
+        border-radius: 4px;
+        white-space: pre-wrap;
+        font-family: monospace;
+      }
       
+      #requestDetails {
+        margin: 15px 0;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #fafafa;
+      }
+      
+      #requestDetails h4 {
+        margin-top: 0;
+        color: #333;
+      }
       pre {
         background-color: #f0f0f0;
         padding: 10px;
         border-radius: 4px;
         overflow: auto;
-      }
-      
-      #fragmentFile {
-        display: none;
-      }
-      
-      .content-type-container {
-        display: flex;
-        gap: 10px;
-        align-items: center;
-        margin-bottom: 10px;
       }
     </style>
     <script type="module" src="./app.js"></script>
@@ -120,8 +106,7 @@
       <!-- Fragment Creation Form -->
       <div class="create-container">
         <h3>Create New Fragment</h3>
-        
-        <div class="content-type-container">
+        <div class="format-selector">
           <label for="contentTypeSelect">Content Type:</label>
           <select id="contentTypeSelect">
             <optgroup label="Text Formats">
@@ -143,11 +128,18 @@
             </optgroup>
           </select>
         </div>
-        
-        <textarea id="fragmentText" rows="6" placeholder="Enter your fragment content..."></textarea>
+        <textarea id="fragmentText" rows="5" placeholder="Enter your fragment content..."></textarea>
         <input type="file" id="fragmentFile" accept="image/*" />
         <button id="createBtn">Create Fragment</button>
         <p id="createStatus"></p>
+      </div>
+
+      <!-- Request/Response Details -->
+      <div id="requestDetails" hidden>
+        <h4>Last Request Details</h4>
+        <pre id="requestInfo"></pre>
+        <h4>Response Headers</h4>
+        <pre id="responseHeaders"></pre>
       </div>
 
       <!-- Fragment List -->
