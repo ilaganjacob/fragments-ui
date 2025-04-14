@@ -2,6 +2,21 @@
 import { signIn, getUser } from "./auth";
 import { getUserFragments, createFragment, getFragment } from "./api";
 
+// This toggles between text input and file input based on content type
+contentTypeSelect.addEventListener('change', function() {
+  const selectedType = this.value;
+  
+  // Show file input for image types, text input for others
+  if (selectedType.startsWith('image/')) {
+    fragmentText.style.display = 'none';
+    fragmentFile.style.display = 'block';
+  } else {
+    fragmentText.style.display = 'block';
+    fragmentFile.style.display = 'none';
+  }
+});
+
+
 async function init() {
   console.log("App initializing...");
 
