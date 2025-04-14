@@ -149,3 +149,66 @@ export async function getFragmentInfo(user, id) {
     throw err;
   }
 }
+
+// Update in src/api.js
+// Add this function to properly handle different content types including images
+
+/**
+ * Process fragment data based on its content type
+ * @param {Response} response - The fetch response object
+ * @returns {Promise<string|ArrayBuffer|Object>} - Processed data
+ */
+async function processResponseByContentType(response) {
+  const contentType = response.headers.get('Content-Type');
+  
+  // Log the content type for debugging
+  console.log('Processing response with Content-Type:', contentType);
+  
+  if (!contentType) {
+    return await response.text();
+  }
+  
+  // Handle image types
+  if (contentType.startsWith('image/')) {
+    // For images, we need to get the data as an ArrayBuffer and convert to a Blob
+    const arrayBuffer = await response.arrayBuffer();
+    const blob = new Blob([arrayBuffer], { type: contentType });
+    // Return an object with the blob URL and mime type
+    return {
+      type: 'image',
+      mimeType: contentType, 
+      url: URL.createObjectURL(blob),
+      blob
+    };
+  }
+  
+  // Handle JSON
+  if (contentType.includes('application/json')) {
+    return await response.json();
+  }
+  
+  // Default to text for everything else
+  return await response.text();
+}
+
+// Modify your getFragment function in api.js to use this function
+export async function getFragment(user, idWithOptionalExtension) {
+  console.log(`Getting fragment ${idWithOptionalExtension}...`);
+  try {
+    const res = await fetch(`${apiUrl}/v1/fragments/${idWithOptionalExtension}`, {
+      headers: user.authorizationHeaders(),
+    });
+    
+    if (!res.ok) {
+      throw new Error(`${res.status} ${res.statusText}`);
+    }
+    
+    // Process the response based on content type
+    return await processResponseByContentType(res);
+  } catch (err) {
+    console.error('Unable to get fragment data', { err });
+    throw err;
+  }
+}
+
+
