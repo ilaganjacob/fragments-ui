@@ -45,7 +45,9 @@
         gap: 10px;
         margin: 10px 0;
       }
-      .html-preview, .image-preview, .yaml-preview {
+      .html-preview,
+      .image-preview,
+      .yaml-preview {
         margin-top: 10px;
         padding: 10px;
         background-color: #fff;
@@ -59,27 +61,28 @@
         margin: 0 auto;
       }
 
-      #requestInfo, #responseHeaders {
-  color: #000;
-  background-color: #f5f5f5;
-  padding: 10px;
-  border-radius: 4px;
-  white-space: pre-wrap;
-  font-family: monospace;
-}
+      #requestInfo,
+      #responseHeaders {
+        color: #000;
+        background-color: #f5f5f5;
+        padding: 10px;
+        border-radius: 4px;
+        white-space: pre-wrap;
+        font-family: monospace;
+      }
 
-#requestDetails {
-  margin: 15px 0;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background-color: #fafafa;
-}
+      #requestDetails {
+        margin: 15px 0;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #fafafa;
+      }
 
-#requestDetails h4 {
-  margin-top: 0;
-  color: #333;
-}
+      #requestDetails h4 {
+        margin-top: 0;
+        color: #333;
+      }
       pre {
         background-color: #f0f0f0;
         padding: 10px;
@@ -91,7 +94,7 @@
   </head>
   <body>
     <h1>Fragments UI</h1>
-    
+
     <!-- Authentication Section -->
     <section>
       <nav>
@@ -102,7 +105,7 @@
     <!-- User Info Section -->
     <section hidden id="user">
       <h2>Hello <span class="username"></span>!</h2>
-      
+
       <!-- Fragment Creation Form -->
       <div class="create-container">
         <h3>Create New Fragment</h3>
@@ -128,7 +131,11 @@
             </optgroup>
           </select>
         </div>
-        <textarea id="fragmentText" rows="5" placeholder="Enter your fragment content..."></textarea>
+        <textarea
+          id="fragmentText"
+          rows="5"
+          placeholder="Enter your fragment content..."
+        ></textarea>
         <input type="file" id="fragmentFile" accept="image/*" />
         <button id="createBtn">Create Fragment</button>
         <p id="createStatus"></p>
@@ -148,7 +155,7 @@
         <button id="refreshBtn">Refresh List</button>
         <div id="fragmentsList"></div>
       </div>
-      
+
       <!-- API URL Information -->
       <div class="api-url-display">
         <p>Connected to API: <span id="apiUrlDisplay"></span></p>
