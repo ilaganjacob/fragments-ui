@@ -231,73 +231,48 @@ async function init() {
         previewBtn.textContent = 'View Content';
         previewBtn.onclick = async () => {
           try {
-            previewBtn.disabled = true;
-            
             // Check if preview is already shown
             let preview = fragmentDiv.querySelector('.fragment-content');
             if (preview) {
               preview.remove();
-              previewBtn.textContent = 'View Content';
-              previewBtn.disabled = false;
+              previewBtn.textContent = 'Preview Content';
               return;
             }
             
             previewBtn.textContent = 'Loading...';
+            const response = await getFragment(user, fragment.id);
             
-            // Create preview container
+            // Create or update the preview
             preview = document.createElement('div');
             preview.className = 'fragment-content';
             
-            // Handle different content types
+            // Handle different content types based on the fragment's type
             if (fragment.type.startsWith('image/')) {
-              // For images, create an img element
+              // For image fragments, create an img element
               const img = document.createElement('img');
-              img.alt = 'Fragment Image';
-              // Get blob URL
-              const response = await fetch(`${process.env.API_URL}/v1/fragments/${fragment.id}`, {
-                headers: user.authorizationHeaders()
-              });
-              
-              if (!response.ok) {
-                throw new Error(`Error: ${response.status} ${response.statusText}`);
-              }
-              
-              const blob = await response.blob();
+              // We need to create a blob URL from the response
+              const blob = new Blob([response], { type: fragment.type });
               img.src = URL.createObjectURL(blob);
+              img.alt = 'Fragment image';
               preview.appendChild(img);
+              preview.classList.add('image-preview');
+            } else if (fragment.type.includes('json')) {
+              try {
+                const formattedJson = JSON.stringify(JSON.parse(response), null, 2);
+                preview.textContent = formattedJson;
+              } catch (e) {
+                preview.textContent = response;
+              }
             } else {
-              // For text-based content
-              const response = await fetch(`${process.env.API_URL}/v1/fragments/${fragment.id}`, {
-                headers: user.authorizationHeaders()
-              });
-              
-              if (!response.ok) {
-                throw new Error(`Error: ${response.status} ${response.statusText}`);
-              }
-              
-              const content = await response.text();
-              
-              if (fragment.type.includes('json')) {
-                try {
-                  const formattedJson = JSON.stringify(JSON.parse(content), null, 2);
-                  preview.innerHTML = `<pre>${formattedJson}</pre>`;
-                } catch (e) {
-                  preview.textContent = content;
-                }
-              } else if (fragment.type.includes('markdown')) {
-                preview.innerHTML = `<pre>${content}</pre>`;
-              } else {
-                preview.textContent = content;
-              }
+              // For text content
+              preview.textContent = response;
             }
             
             fragmentDiv.appendChild(preview);
             previewBtn.textContent = 'Hide Content';
-            previewBtn.disabled = false;
           } catch (err) {
             console.error('Error loading fragment:', err);
             previewBtn.textContent = 'Error loading preview';
-            previewBtn.disabled = false;
           }
         };
         actions.appendChild(previewBtn);
