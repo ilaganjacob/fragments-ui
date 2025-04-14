@@ -44,15 +44,17 @@ export async function getUserFragments(user, expand = false) {
     throw err;
   }
 }
-
 /**
  * Create a new fragment with the given content and type
+ * @param {Object} user - The authenticated user
+ * @param {string|ArrayBuffer|Blob} content - The fragment content
+ * @param {string} contentType - The MIME type
  */
 export async function createFragment(user, content, contentType = 'text/plain') {
   console.log('Creating Fragment:', {
     apiUrl: `${apiUrl}/v1/fragments`,
     contentType,
-    contentLength: content.length,
+    contentLength: content.length || (content.byteLength || 0),
     username: user.username,
   });
 
@@ -63,7 +65,7 @@ export async function createFragment(user, content, contentType = 'text/plain') 
     const res = await fetch(`${apiUrl}/v1/fragments`, {
       method: 'POST',
       headers: headers,
-      body: content,
+      body: content, // This will work with strings and binary data
     });
 
     console.log('Response Status:', res.status);
@@ -97,6 +99,7 @@ export async function createFragment(user, content, contentType = 'text/plain') 
     throw err;
   }
 }
+
 export async function getFragment(user, idWithOptionalExtension) {
   console.log(`Getting fragment ${idWithOptionalExtension}...`);
   try {
