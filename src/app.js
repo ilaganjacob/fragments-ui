@@ -2,20 +2,6 @@
 import { signIn, getUser } from "./auth";
 import { getUserFragments, createFragment, getFragment } from "./api";
 
-// This toggles between text input and file input based on content type
-contentTypeSelect.addEventListener("change", function () {
-  const selectedType = this.value;
-
-  // Show file input for image types, text input for others
-  if (selectedType.startsWith("image/")) {
-    fragmentText.style.display = "none";
-    fragmentFile.style.display = "block";
-  } else {
-    fragmentText.style.display = "block";
-    fragmentFile.style.display = "none";
-  }
-});
-
 // This function handles the fragment creation logic, whether text or image
 async function createFragmentHandler() {
   const contentType = contentTypeSelect.value;
@@ -162,83 +148,8 @@ async function init() {
   userSection.querySelector(".username").innerText = user.username;
   loginBtn.disabled = true;
 
-  // Handle fragment creation
-  createBtn.onclick = async () => {
-    const contentType = contentTypeSelect.value;
-
-    createBtn.disabled = true;
-
-    try {
-      // Handle different content types
-      if (contentType.startsWith("image/")) {
-        // For image uploads, get the file
-        if (!fragmentFile.files || !fragmentFile.files[0]) {
-          createStatus.textContent = "Please select an image file";
-          createBtn.disabled = false;
-          return;
-        }
-
-        const file = fragmentFile.files[0];
-        createStatus.textContent = `Creating ${contentType} fragment...`;
-
-        // Display request info
-        requestInfo.textContent = `POST /v1/fragments\nContent-Type: ${contentType}\nContent length: ${file.size} bytes`;
-        requestDetails.hidden = false;
-
-        // Read the file as an ArrayBuffer
-        const arrayBuffer = await file.arrayBuffer();
-
-        // Use your existing createFragment function
-        const response = await createFragment(user, arrayBuffer, contentType);
-
-        // Display response headers
-        responseHeaders.textContent =
-          `Status: ${response.status}\n` +
-          `Location: ${response.headers.location || "N/A"}\n` +
-          `Content-Type: ${response.headers.contentType || "N/A"}`;
-
-        // Clear form and show success
-        fragmentFile.value = "";
-        createStatus.textContent = "Fragment created successfully!";
-      } else {
-        // For text-based content (your existing code)
-        const text = fragmentText.value.trim();
-
-        if (!text) {
-          createStatus.textContent = "Please enter some content";
-          createBtn.disabled = false;
-          return;
-        }
-
-        createStatus.textContent = `Creating ${contentType} fragment...`;
-
-        // Display request info
-        requestInfo.textContent = `POST /v1/fragments\nContent-Type: ${contentType}\nContent length: ${text.length} bytes`;
-        requestDetails.hidden = false;
-
-        // Use your existing createFragment function
-        const response = await createFragment(user, text, contentType);
-
-        // Display response headers
-        responseHeaders.textContent =
-          `Status: ${response.status}\n` +
-          `Location: ${response.headers.location || "N/A"}\n` +
-          `Content-Type: ${response.headers.contentType || "N/A"}`;
-
-        // Clear form and show success
-        fragmentText.value = "";
-        createStatus.textContent = "Fragment created successfully!";
-      }
-
-      // Refresh the fragments list
-      await displayFragments();
-    } catch (err) {
-      console.error("Error creating fragment:", err);
-      createStatus.textContent = `Error: ${err.message}`;
-    } finally {
-      createBtn.disabled = false;
-    }
-  };
+  // Replace the original handler with the new createFragmentHandler
+  createBtn.onclick = createFragmentHandler;
 
   // Handle refresh button
   refreshBtn.onclick = () => {
