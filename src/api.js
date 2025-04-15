@@ -44,6 +44,7 @@ export async function getUserFragments(user, expand = false) {
     throw err;
   }
 }
+
 /**
  * Create a new fragment with the given content and type
  * @param {Object} user - The authenticated user
@@ -121,8 +122,20 @@ export async function getFragment(user, idWithOptionalExtension) {
       throw new Error(`${res.status} ${res.statusText}`);
     }
     
-    // Process the response based on content type
-    return await processResponseByContentType(res);
+    const contentType = res.headers.get('Content-Type');
+    
+    // Handle image types
+    if (contentType && contentType.startsWith('image/')) {
+      return await res.arrayBuffer();
+    }
+    
+    // Handle JSON
+    if (contentType && contentType.includes('application/json')) {
+      return await res.json();
+    }
+    
+    // Default to text for everything else
+    return await res.text();
   } catch (err) {
     console.error('Unable to get fragment data', { err });
     throw err;
@@ -151,43 +164,3 @@ export async function getFragmentInfo(user, id) {
     throw err;
   }
 }
-
-/**
- * Process fragment data based on its content type
- * @param {Response} response - The fetch response object
- * @returns {Promise<string|ArrayBuffer|Object>} - Processed data
- */
-async function processResponseByContentType(response) {
-  const contentType = response.headers.get('Content-Type');
-  
-  // Log the content type for debugging
-  console.log('Processing response with Content-Type:', contentType);
-  
-  if (!contentType) {
-    return await response.text();
-  }
-  
-  // Handle image types
-  if (contentType.startsWith('image/')) {
-    // For images, we need to get the data as an ArrayBuffer and convert to a Blob
-    const arrayBuffer = await response.arrayBuffer();
-    const blob = new Blob([arrayBuffer], { type: contentType });
-    // Return an object with the blob URL and mime type
-    return {
-      type: 'image',
-      mimeType: contentType, 
-      url: URL.createObjectURL(blob),
-      blob
-    };
-  }
-  
-  // Handle JSON
-  if (contentType.includes('application/json')) {
-    return await response.json();
-  }
-  
-  // Default to text for everything else
-  return await response.text();
-}
-
-
