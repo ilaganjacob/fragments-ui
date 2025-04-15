@@ -107,6 +107,9 @@ export async function createFragment(user, content, contentType = 'text/plain') 
   }
 }
 
+/**
+ * Get fragment data with proper content type handling
+ */
 export async function getFragment(user, idWithOptionalExtension) {
   console.log(`Getting fragment ${idWithOptionalExtension}...`);
   try {
@@ -118,20 +121,8 @@ export async function getFragment(user, idWithOptionalExtension) {
       throw new Error(`${res.status} ${res.statusText}`);
     }
     
-    const contentType = res.headers.get('Content-Type');
-    
-    // For images, return as ArrayBuffer
-    if (contentType && contentType.startsWith('image/')) {
-      return await res.arrayBuffer();
-    }
-    
-    // For JSON
-    if (contentType && contentType.includes('application/json')) {
-      return await res.json();
-    }
-    
-    // Default to text for everything else
-    return await res.text();
+    // Process the response based on content type
+    return await processResponseByContentType(res);
   } catch (err) {
     console.error('Unable to get fragment data', { err });
     throw err;
@@ -160,9 +151,6 @@ export async function getFragmentInfo(user, id) {
     throw err;
   }
 }
-
-// Update in src/api.js
-// Add this function to properly handle different content types including images
 
 /**
  * Process fragment data based on its content type
