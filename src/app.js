@@ -16,6 +16,96 @@ contentTypeSelect.addEventListener("change", function () {
   }
 });
 
+// This function handles the fragment creation logic, whether text or image
+async function createFragmentHandler() {
+  const contentType = contentTypeSelect.value;
+  createBtn.disabled = true;
+  createStatus.textContent = '';
+  requestDetails.hidden = true;
+
+  try {
+    // Handle different content types
+    if (contentType.startsWith('image/')) {
+      // For image uploads, get the file
+      if (!fragmentFile.files || !fragmentFile.files[0]) {
+        createStatus.textContent = "Please select an image file";
+        createBtn.disabled = false;
+        return;
+      }
+
+      const file = fragmentFile.files[0];
+      
+      // Check if file type matches selected type
+      if (!file.type.startsWith('image/')) {
+        createStatus.textContent = `Selected file is not an image. Got type: ${file.type}`;
+        createBtn.disabled = false;
+        return;
+      }
+      
+      createStatus.textContent = `Creating ${contentType} fragment...`;
+
+      // Display request info
+      requestInfo.textContent = `POST /v1/fragments\nContent-Type: ${contentType}\nContent length: ${file.size} bytes`;
+      requestDetails.hidden = false;
+
+      // Read the file as an ArrayBuffer for binary data
+      const arrayBuffer = await file.arrayBuffer();
+
+      // Create the fragment
+      const response = await createFragment(user, arrayBuffer, contentType);
+
+      // Display response headers
+      responseHeaders.textContent =
+        `Status: ${response.status}\n` +
+        `Location: ${response.headers.location || "N/A"}\n` +
+        `Content-Type: ${response.headers.contentType || "N/A"}`;
+
+      // Clear form and show success
+      fragmentFile.value = "";
+      createStatus.textContent = "Fragment created successfully!";
+      
+      // Show the newly created fragment
+      await displayFragments();
+    } else {
+      // For text-based content
+      const text = fragmentText.value.trim();
+
+      if (!text) {
+        createStatus.textContent = "Please enter some content";
+        createBtn.disabled = false;
+        return;
+      }
+
+      createStatus.textContent = `Creating ${contentType} fragment...`;
+
+      // Display request info
+      requestInfo.textContent = `POST /v1/fragments\nContent-Type: ${contentType}\nContent length: ${text.length} bytes`;
+      requestDetails.hidden = false;
+
+      // Create the fragment
+      const response = await createFragment(user, text, contentType);
+
+      // Display response headers
+      responseHeaders.textContent =
+        `Status: ${response.status}\n` +
+        `Location: ${response.headers.location || "N/A"}\n` +
+        `Content-Type: ${response.headers.contentType || "N/A"}`;
+
+      // Clear form and show success
+      fragmentText.value = "";
+      createStatus.textContent = "Fragment created successfully!";
+      
+      // Show the newly created fragment
+      await displayFragments();
+    }
+  } catch (err) {
+    console.error("Error creating fragment:", err);
+    createStatus.textContent = `Error: ${err.message}`;
+  } finally {
+    createBtn.disabled = false;
+  }
+}
+
 async function init() {
   console.log("App initializing...");
 
