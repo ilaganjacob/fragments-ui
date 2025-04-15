@@ -54,18 +54,25 @@ export async function createFragment(user, content, contentType = 'text/plain') 
   console.log('Creating Fragment:', {
     apiUrl: `${apiUrl}/v1/fragments`,
     contentType,
-    contentLength: content.length || (content.byteLength || 0),
+    contentLength: content.length || (content instanceof Blob ? content.size : (content.byteLength || 0)),
     username: user.username,
+    contentIsBlob: content instanceof Blob,
+    contentIsBuffer: content instanceof ArrayBuffer,
+    contentIsString: typeof content === 'string'
   });
 
   try {
-    const headers = user.authorizationHeaders(contentType);
+    const headers = user.authorizationHeaders();
+    
+    // Add content type to headers
+    headers['Content-Type'] = contentType;
+    
     console.log('Request Headers:', headers);
 
     const res = await fetch(`${apiUrl}/v1/fragments`, {
       method: 'POST',
       headers: headers,
-      body: content, // This will work with strings and binary data
+      body: content, // This works with strings, ArrayBuffer, and Blob data
     });
 
     console.log('Response Status:', res.status);
