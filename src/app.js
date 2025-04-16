@@ -21,7 +21,7 @@ async function init() {
   const apiUrlDisplay = document.querySelector("#apiUrlDisplay");
 
   // Display the API URL we're using
-  apiUrlDisplay.textContent = process.env.API_URL || "http://localhost:8080";
+  apiUrlDisplay.textContent = process.env.API_URL
 
   // Show/hide text area or file input based on content type
   contentTypeSelect.addEventListener("change", () => {
