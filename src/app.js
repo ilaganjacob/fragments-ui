@@ -1,6 +1,6 @@
 // src/app.js
 import { signIn, getUser } from "./auth";
-import { getUserFragments, createFragment, getFragment } from "./api";
+import { getUserFragments, createFragment, getFragment, deleteFragment } from "./api";
 
 async function init() {
   console.log("App initializing...");
@@ -237,7 +237,6 @@ async function init() {
         };
 
         // Add conversion options for formats that support it
-        // Add conversion options for formats that support it
         if (fragment.formats && fragment.formats.length > 1) {
           const convertSection = document.createElement("div");
           convertSection.className = "convert-options";
@@ -307,6 +306,42 @@ async function init() {
         const actions = document.createElement("div");
         actions.className = "fragment-actions";
         actions.appendChild(previewBtn);
+        
+        // Add a delete button
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "Delete";
+        deleteBtn.className = "delete-btn";
+        deleteBtn.onclick = async () => {
+          if (confirm(`Are you sure you want to delete this fragment?`)) {
+            try {
+              deleteBtn.textContent = "Deleting...";
+              deleteBtn.disabled = true;
+              
+              await deleteFragment(user, fragment.id);
+              
+              // Remove from UI
+              fragmentDiv.remove();
+              
+              // Show temporary success message
+              const successMsg = document.createElement("div");
+              successMsg.className = "success-message";
+              successMsg.textContent = "Fragment deleted successfully!";
+              fragmentsList.prepend(successMsg);
+              
+              // Remove success message after 3 seconds
+              setTimeout(() => {
+                successMsg.remove();
+              }, 3000);
+            } catch (err) {
+              console.error("Error deleting fragment:", err);
+              deleteBtn.textContent = "Delete";
+              deleteBtn.disabled = false;
+              alert(`Error deleting fragment: ${err.message}`);
+            }
+          }
+        };
+        
+        actions.appendChild(deleteBtn);
 
         fragmentDiv.appendChild(actions);
         fragmentsList.appendChild(fragmentDiv);
