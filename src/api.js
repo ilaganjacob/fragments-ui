@@ -177,3 +177,32 @@ export async function getFragmentInfo(user, id) {
     throw err;
   }
 }
+
+/**
+ * Delete a fragment
+ * @param {Object} user - The authenticated user 
+ * @param {string} id - The fragment ID to delete
+ * @returns {Promise<Object>} - Response data
+ */
+export async function deleteFragment(user, id) {
+  console.log(`Deleting fragment ${id}...`);
+  try {
+    const res = await fetch(`${apiUrl}/v1/fragments/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${user.idToken}`
+      }
+    });
+    
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error('Error Response Body:', errorText);
+      throw new Error(`${res.status} ${res.statusText}: ${errorText}`);
+    }
+    
+    return await res.json();
+  } catch (err) {
+    console.error('Unable to delete fragment', { err });
+    throw err;
+  }
+}
