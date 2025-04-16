@@ -206,3 +206,40 @@ export async function deleteFragment(user, id) {
     throw err;
   }
 }
+
+/**
+ * Update an existing fragment
+ * @param {Object} user - The authenticated user
+ * @param {string} id - Fragment ID to update
+ * @param {string|ArrayBuffer|Blob} content - The new fragment content
+ * @param {string} contentType - The MIME type (must match original fragment type)
+ * @returns {Promise<Object>} - Response data
+ */
+export async function updateFragment(user, id, content, contentType) {
+  console.log(`Updating fragment ${id}...`, {
+    contentType,
+    contentLength: content.length || (content instanceof Blob ? content.size : (content.byteLength || 0)),
+  });
+
+  try {
+    const res = await fetch(`${apiUrl}/v1/fragments/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${user.idToken}`,
+        'Content-Type': contentType
+      },
+      body: content
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error('Error Response Body:', errorText);
+      throw new Error(`${res.status} ${res.statusText}: ${errorText}`);
+    }
+
+    return await res.json();
+  } catch (err) {
+    console.error('Unable to update fragment', { err });
+    throw err;
+  }
+}
