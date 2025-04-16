@@ -21,7 +21,7 @@ async function init() {
   const apiUrlDisplay = document.querySelector("#apiUrlDisplay");
 
   // Display the API URL we're using
-  apiUrlDisplay.textContent = process.env.API_URL
+  apiUrlDisplay.textContent = process.env.API_URL;
 
   // Show/hide text area or file input based on content type
   contentTypeSelect.addEventListener("change", () => {
@@ -144,27 +144,29 @@ async function init() {
   async function displayFragments() {
     try {
       fragmentsList.innerHTML = "<p>Loading fragments...</p>";
-      
+
       const data = await getUserFragments(user, true); // Get expanded fragment data
       const { fragments } = data;
-      
+
       fragmentsList.innerHTML = ""; // Clear existing list
-      
+
       if (!fragments || fragments.length === 0) {
         fragmentsList.innerHTML = "<p>No fragments yet</p>";
         return;
       }
-      
+
       // For each fragment, create a display card
       fragments.forEach((fragment) => {
         const fragmentDiv = document.createElement("div");
         fragmentDiv.className = "fragment-item";
-        
+
         // Create fragment header with ID and type
         const header = document.createElement("h4");
-        header.textContent = `${fragment.id.substring(0, 8)}... (${fragment.type})`;
+        header.textContent = `${fragment.id.substring(0, 8)}... (${
+          fragment.type
+        })`;
         fragmentDiv.appendChild(header);
-        
+
         // Create metadata section
         const metadata = document.createElement("div");
         metadata.className = "fragment-metadata";
@@ -175,7 +177,7 @@ async function init() {
           <div>Type: ${fragment.type}</div>
         `;
         fragmentDiv.appendChild(metadata);
-        
+
         // Create content preview button
         const previewBtn = document.createElement("button");
         previewBtn.textContent = "Preview Content";
@@ -188,34 +190,35 @@ async function init() {
               previewBtn.textContent = "Preview Content";
               return;
             }
-            
+
             previewBtn.textContent = "Loading...";
             const content = await getFragment(user, fragment.id);
-            
+
             // Create or update the preview
             preview = document.createElement("div");
             preview.className = "fragment-content";
-            
+
             // Handle different content types based on fragment's type
             if (fragment.type.startsWith("image/")) {
               // For images, create an img element with a blob URL
               const blob = new Blob([content], { type: fragment.type });
               const imageUrl = URL.createObjectURL(blob);
-              
+
               const img = document.createElement("img");
               img.src = imageUrl;
               img.alt = "Fragment image";
               img.style.maxWidth = "100%";
               img.style.maxHeight = "300px";
-              
+
               preview.appendChild(img);
               preview.classList.add("image-preview");
             } else if (fragment.type.includes("json")) {
               try {
                 // For JSON, try to format it nicely
-                const formattedJson = typeof content === "object" 
-                  ? JSON.stringify(content, null, 2) 
-                  : JSON.stringify(JSON.parse(content), null, 2);
+                const formattedJson =
+                  typeof content === "object"
+                    ? JSON.stringify(content, null, 2)
+                    : JSON.stringify(JSON.parse(content), null, 2);
                 preview.textContent = formattedJson;
               } catch (e) {
                 preview.textContent = content;
@@ -224,7 +227,7 @@ async function init() {
               // For text content
               preview.textContent = content;
             }
-            
+
             fragmentDiv.appendChild(preview);
             previewBtn.textContent = "Hide Content";
           } catch (err) {
@@ -232,19 +235,21 @@ async function init() {
             previewBtn.textContent = "Error loading preview";
           }
         };
-        
+
+        // Add conversion options for formats that support it
         // Add conversion options for formats that support it
         if (fragment.formats && fragment.formats.length > 1) {
           const convertSection = document.createElement("div");
           convertSection.className = "convert-options";
-          
+
           const convertLabel = document.createElement("span");
           convertLabel.textContent = "Convert to: ";
           convertSection.appendChild(convertLabel);
-          
+
           // Create conversion links for each supported format
-          fragment.formats.forEach(format => {
-            if (format !== fragment.type) { // Don't include the current format
+          fragment.formats.forEach((format) => {
+            if (format !== fragment.type) {
+              // Don't include the current format
               const ext = getExtensionForType(format);
               if (ext) {
                 const convertLink = document.createElement("a");
@@ -253,9 +258,40 @@ async function init() {
                 convertLink.onclick = async (e) => {
                   e.preventDefault();
                   try {
-                    window.open(`${apiUrl}/v1/fragments/${fragment.id}.${ext}`, '_blank');
+                    // Instead of opening a new window, download the converted fragment directly
+                    const response = await fetch(
+                      `${process.env.API_URL}/v1/fragments/${fragment.id}.${ext}`,
+                      {
+                        headers: {
+                          Authorization: `Bearer ${user.idToken}`,
+                        },
+                      }
+                    );
+
+                    if (!response.ok) {
+                      throw new Error(
+                        `Conversion failed: ${response.status} ${response.statusText}`
+                      );
+                    }
+
+                    // Get the content
+                    const blob = await response.blob();
+
+                    // Create a download link and click it
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `fragment-${fragment.id.substring(
+                      0,
+                      8
+                    )}.${ext}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
                   } catch (err) {
                     console.error(`Error converting to ${format}:`, err);
+                    alert(`Error converting to ${ext}: ${err.message}`);
                   }
                 };
                 convertSection.appendChild(convertLink);
@@ -263,15 +299,15 @@ async function init() {
               }
             }
           });
-          
+
           fragmentDiv.appendChild(convertSection);
         }
-        
+
         // Create actions section
         const actions = document.createElement("div");
         actions.className = "fragment-actions";
         actions.appendChild(previewBtn);
-        
+
         fragmentDiv.appendChild(actions);
         fragmentsList.appendChild(fragmentDiv);
       });
@@ -284,19 +320,19 @@ async function init() {
   // Helper function to get file extension from MIME type
   function getExtensionForType(mimeType) {
     const typeToExt = {
-      'text/plain': 'txt',
-      'text/markdown': 'md',
-      'text/html': 'html',
-      'application/json': 'json',
-      'application/yaml': 'yaml',
-      'text/csv': 'csv',
-      'image/png': 'png',
-      'image/jpeg': 'jpg',
-      'image/webp': 'webp',
-      'image/gif': 'gif',
-      'image/avif': 'avif'
+      "text/plain": "txt",
+      "text/markdown": "md",
+      "text/html": "html",
+      "application/json": "json",
+      "application/yaml": "yaml",
+      "text/csv": "csv",
+      "image/png": "png",
+      "image/jpeg": "jpg",
+      "image/webp": "webp",
+      "image/gif": "gif",
+      "image/avif": "avif",
     };
-    
+
     return typeToExt[mimeType] || null;
   }
 
