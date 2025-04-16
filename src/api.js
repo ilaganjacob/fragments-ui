@@ -16,7 +16,11 @@ export async function getUserFragments(user, expand = false) {
   });
 
   try {
-    const headers = user.authorizationHeaders();
+    // Create headers with authorization
+    const headers = {
+      'Authorization': `Bearer ${user.idToken}`
+    };
+    
     console.log('Request Headers:', headers);
 
     const res = await fetch(`${apiUrl}/v1/fragments${expand ? '?expand=1' : ''}`, {
@@ -63,10 +67,11 @@ export async function createFragment(user, content, contentType = 'text/plain') 
   });
 
   try {
-    const headers = user.authorizationHeaders();
-    
-    // Add content type to headers
-    headers['Content-Type'] = contentType;
+    // Create headers with authorization and content type
+    const headers = {
+      'Authorization': `Bearer ${user.idToken}`,
+      'Content-Type': contentType
+    };
     
     console.log('Request Headers:', headers);
 
@@ -114,8 +119,12 @@ export async function createFragment(user, content, contentType = 'text/plain') 
 export async function getFragment(user, idWithOptionalExtension) {
   console.log(`Getting fragment ${idWithOptionalExtension}...`);
   try {
+    const headers = {
+      'Authorization': `Bearer ${user.idToken}`
+    };
+    
     const res = await fetch(`${apiUrl}/v1/fragments/${idWithOptionalExtension}`, {
-      headers: user.authorizationHeaders(),
+      headers: headers,
     });
     
     if (!res.ok) {
@@ -148,8 +157,12 @@ export async function getFragment(user, idWithOptionalExtension) {
 export async function getFragmentInfo(user, id) {
   console.log(`Getting fragment info for ${id}...`);
   try {
+    const headers = {
+      'Authorization': `Bearer ${user.idToken}`
+    };
+    
     const res = await fetch(`${apiUrl}/v1/fragments/${id}/info`, {
-      headers: user.authorizationHeaders(),
+      headers: headers,
     });
     
     if (!res.ok) {
