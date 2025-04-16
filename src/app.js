@@ -1,6 +1,12 @@
 // src/app.js
 import { signIn, getUser } from "./auth";
-import { getUserFragments, createFragment, getFragment, deleteFragment } from "./api";
+import {
+  getUserFragments,
+  createFragment,
+  getFragment,
+  deleteFragment,
+  updateFragment
+} from "./api";
 
 async function init() {
   console.log("App initializing...");
@@ -306,7 +312,151 @@ async function init() {
         const actions = document.createElement("div");
         actions.className = "fragment-actions";
         actions.appendChild(previewBtn);
-        
+
+        // Add an edit button
+        const editBtn = document.createElement("button");
+        editBtn.textContent = "Edit";
+        editBtn.className = "edit-btn";
+        editBtn.onclick = async () => {
+          try {
+            // First, get the current content
+            const content = await getFragment(user, fragment.id);
+
+            // Create edit modal/dialog
+            const editDialog = document.createElement("div");
+            editDialog.className = "edit-dialog";
+
+            const editHeader = document.createElement("h4");
+            editHeader.textContent = "Edit Fragment";
+            editDialog.appendChild(editHeader);
+
+            let editInput;
+
+            // Different input types based on content
+            if (fragment.type.startsWith("image/")) {
+              // For images, we need to use a file input
+              editInput = document.createElement("input");
+              editInput.type = "file";
+              editInput.accept = fragment.type;
+
+              // Add preview of current image
+              const currentImg = document.createElement("div");
+              currentImg.className = "current-image";
+              currentImg.innerHTML = "<p>Current image:</p>";
+
+              const img = document.createElement("img");
+              img.src = URL.createObjectURL(
+                new Blob([content], { type: fragment.type })
+              );
+              img.alt = "Current fragment image";
+              img.style.maxWidth = "100%";
+              img.style.maxHeight = "200px";
+
+              currentImg.appendChild(img);
+              editDialog.appendChild(currentImg);
+            } else {
+              // For text content
+              editInput = document.createElement("textarea");
+              editInput.rows = 5;
+              editInput.value =
+                typeof content === "object"
+                  ? JSON.stringify(content, null, 2)
+                  : content;
+            }
+
+            editInput.className = "edit-input";
+            editDialog.appendChild(editInput);
+
+            // Add buttons container
+            const buttonContainer = document.createElement("div");
+            buttonContainer.className = "button-container";
+
+            // Add cancel button
+            const cancelBtn = document.createElement("button");
+            cancelBtn.textContent = "Cancel";
+            cancelBtn.onclick = () => {
+              // Remove the dialog
+              document.body.removeChild(editDialog);
+            };
+            buttonContainer.appendChild(cancelBtn);
+
+            // Add save button
+            const saveBtn = document.createElement("button");
+            saveBtn.textContent = "Save";
+            saveBtn.onclick = async () => {
+              try {
+                saveBtn.textContent = "Saving...";
+                saveBtn.disabled = true;
+
+                let newContent;
+
+                if (fragment.type.startsWith("image/")) {
+                  // For images
+                  if (!editInput.files || !editInput.files[0]) {
+                    alert("Please select a new image file");
+                    saveBtn.textContent = "Save";
+                    saveBtn.disabled = false;
+                    return;
+                  }
+
+                  // Read file as array buffer
+                  newContent = await editInput.files[0].arrayBuffer();
+                } else {
+                  // For text content
+                  newContent = editInput.value;
+                }
+
+                // Update the fragment
+                await updateFragment(
+                  user,
+                  fragment.id,
+                  newContent,
+                  fragment.type
+                );
+
+                // Show success and refresh
+                document.body.removeChild(editDialog);
+
+                // Show temporary success message
+                const successMsg = document.createElement("div");
+                successMsg.className = "success-message";
+                successMsg.textContent = "Fragment updated successfully!";
+                fragmentsList.prepend(successMsg);
+
+                // Remove success message after 3 seconds
+                setTimeout(() => {
+                  successMsg.remove();
+                }, 3000);
+
+                // Refresh the fragments list
+                await displayFragments();
+              } catch (err) {
+                console.error("Error updating fragment:", err);
+                alert(`Error updating fragment: ${err.message}`);
+                saveBtn.textContent = "Save";
+                saveBtn.disabled = false;
+              }
+            };
+            buttonContainer.appendChild(saveBtn);
+
+            editDialog.appendChild(buttonContainer);
+
+            // Add to document
+            document.body.appendChild(editDialog);
+
+            // Position the dialog (center screen)
+            editDialog.style.position = "fixed";
+            editDialog.style.top = "50%";
+            editDialog.style.left = "50%";
+            editDialog.style.transform = "translate(-50%, -50%)";
+          } catch (err) {
+            console.error("Error preparing to edit fragment:", err);
+            alert(`Error: ${err.message}`);
+          }
+        };
+
+        actions.appendChild(editBtn);
+
         // Add a delete button
         const deleteBtn = document.createElement("button");
         deleteBtn.textContent = "Delete";
@@ -316,18 +466,18 @@ async function init() {
             try {
               deleteBtn.textContent = "Deleting...";
               deleteBtn.disabled = true;
-              
+
               await deleteFragment(user, fragment.id);
-              
+
               // Remove from UI
               fragmentDiv.remove();
-              
+
               // Show temporary success message
               const successMsg = document.createElement("div");
               successMsg.className = "success-message";
               successMsg.textContent = "Fragment deleted successfully!";
               fragmentsList.prepend(successMsg);
-              
+
               // Remove success message after 3 seconds
               setTimeout(() => {
                 successMsg.remove();
@@ -340,7 +490,7 @@ async function init() {
             }
           }
         };
-        
+
         actions.appendChild(deleteBtn);
 
         fragmentDiv.appendChild(actions);
